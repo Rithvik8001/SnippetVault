@@ -1,4 +1,3 @@
-// components/AddPaste.tsx
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -19,6 +18,11 @@ export const TAGS = [
   {
     name: "Reference",
     color: "bg-indigo-50 text-indigo-600 border-indigo-100",
+  },
+
+  {
+    name: "Other",
+    color: "bg-cyan-50 text-gray-600 border-gray-100 border",
   },
 ] as const;
 

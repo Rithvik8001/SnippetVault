@@ -66,7 +66,7 @@ export default function PasteList({
   };
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-4 sm:gap-6">
       <AnimatePresence mode="popLayout">
         {pastes.map((paste) => (
           <motion.div
@@ -81,79 +81,106 @@ export default function PasteList({
           >
             <div
               className={`
-              bg-white rounded-2xl transition-all duration-300
-              ${hoveredId === paste.id ? "shadow-lg scale-[1.02]" : "shadow-sm"}
+              bg-white rounded-xl sm:rounded-2xl transition-all duration-300
+              ${
+                hoveredId === paste.id
+                  ? "sm:shadow-lg sm:scale-[1.02]"
+                  : "shadow-sm"
+              }
               border border-gray-100 overflow-hidden
             `}
             >
               {editingId === paste.id ? (
-                <div className="p-8">
-                  <Input
-                    value={editedPaste?.title}
-                    onChange={(e) =>
-                      setEditedPaste({ ...editedPaste!, title: e.target.value })
-                    }
-                    className="text-xl font-medium mb-4 border-none bg-gray-50 focus:ring-0 rounded-xl"
-                    placeholder="Title"
-                  />
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {TAGS.map((tag) => (
-                      <button
-                        key={tag.name}
-                        type="button"
-                        onClick={() =>
-                          setEditedPaste({ ...editedPaste!, tag: tag.name })
+                // Edit Mode
+                <div className="p-4 sm:p-8">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Title
+                      </label>
+                      <Input
+                        value={editedPaste?.title}
+                        onChange={(e) =>
+                          setEditedPaste({
+                            ...editedPaste!,
+                            title: e.target.value,
+                          })
                         }
-                        className={`
-                          px-4 py-2 rounded-xl text-sm font-medium transition-all
-                          ${
-                            editedPaste?.tag === tag.name
-                              ? tag.color
-                              : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-                          }
-                        `}
+                        className="text-base sm:text-lg font-medium border-none bg-gray-50 focus:ring-0 rounded-xl"
+                        placeholder="Enter title..."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Tag
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {TAGS.map((tag) => (
+                          <button
+                            key={tag.name}
+                            type="button"
+                            onClick={() =>
+                              setEditedPaste({ ...editedPaste!, tag: tag.name })
+                            }
+                            className={`
+                              px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-sm font-medium transition-all
+                              ${
+                                editedPaste?.tag === tag.name
+                                  ? tag.color
+                                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                              }
+                            `}
+                          >
+                            {tag.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Content
+                      </label>
+                      <Textarea
+                        value={editedPaste?.content}
+                        onChange={(e) =>
+                          setEditedPaste({
+                            ...editedPaste!,
+                            content: e.target.value,
+                          })
+                        }
+                        className="min-h-[150px] sm:min-h-[200px] font-mono text-sm bg-gray-50 border-none focus:ring-0 rounded-xl resize-none"
+                        placeholder="Enter your content..."
+                      />
+                    </div>
+
+                    <div className="flex justify-end space-x-3 pt-4">
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
                       >
-                        {tag.name}
+                        Cancel
                       </button>
-                    ))}
-                  </div>
-
-                  <Textarea
-                    value={editedPaste?.content}
-                    onChange={(e) =>
-                      setEditedPaste({
-                        ...editedPaste!,
-                        content: e.target.value,
-                      })
-                    }
-                    className="min-h-[200px] mb-6 font-mono text-sm bg-gray-50 border-none focus:ring-0 rounded-xl resize-none"
-                  />
-
-                  <div className="flex justify-end space-x-3">
-                    <button
-                      onClick={() => setEditingId(null)}
-                      className="px-6 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSave}
-                      className="px-6 py-2.5 text-sm font-medium bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all"
-                    >
-                      Save Changes
-                    </button>
+                      <button
+                        onClick={handleSave}
+                        className="px-4 py-2 text-sm font-medium bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all"
+                      >
+                        Save Changes
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : (
-                <div className="p-8">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="space-y-3">
-                      <h3 className="text-xl font-medium text-gray-900">
+                // View Mode
+                <div className="p-4 sm:p-8">
+                  <div className="space-y-4 sm:space-y-0 sm:flex sm:justify-between sm:items-start mb-4">
+                    <div className="space-y-2 sm:space-y-3">
+                      <h3 className="text-lg sm:text-xl font-medium text-gray-900">
                         {paste.title}
                       </h3>
                       <span
-                        className={`inline-block px-4 py-2 rounded-xl text-sm font-medium ${getTagColor(
+                        className={`inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-sm font-medium ${getTagColor(
                           paste.tag
                         )}`}
                       >
@@ -163,52 +190,62 @@ export default function PasteList({
 
                     <div
                       className={`
-                      flex space-x-1 transition-opacity duration-200
-                      ${hoveredId === paste.id ? "opacity-100" : "opacity-0"}
+                      flex items-center justify-end space-x-1
+                      sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200
                     `}
                     >
                       <button
                         onClick={() => handleCopy(paste.content, paste.id!)}
                         className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all relative"
+                        aria-label="Copy content"
                       >
-                        <Copy className="h-5 w-5" />
+                        <Copy className="h-4 sm:h-5 w-4 sm:w-5" />
                         {copyFeedback === paste.id && (
-                          <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs font-medium text-gray-500">
-                            Copied
+                          <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs font-medium text-gray-500 whitespace-nowrap">
+                            Copied!
                           </span>
                         )}
                       </button>
                       <button
                         onClick={() => handleShare(paste)}
                         className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all"
+                        aria-label="Share paste"
                       >
-                        <Share2 className="h-5 w-5" />
+                        <Share2 className="h-4 sm:h-5 w-4 sm:w-5" />
                       </button>
                       <button
                         onClick={() => handleEdit(paste)}
                         className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all"
+                        aria-label="Edit paste"
                       >
-                        <Edit2 className="h-5 w-5" />
+                        <Edit2 className="h-4 sm:h-5 w-4 sm:w-5" />
                       </button>
                       <button
                         onClick={() => onDelete(paste.id!)}
                         className="p-2 text-gray-500 hover:text-red-600 rounded-lg hover:bg-red-50 transition-all"
+                        aria-label="Delete paste"
                       >
-                        <Trash2 className="h-5 w-5" />
+                        <Trash2 className="h-4 sm:h-5 w-4 sm:w-5" />
                       </button>
                     </div>
                   </div>
 
                   <div className="relative">
-                    <pre className="text-sm font-mono text-gray-600 whitespace-pre-wrap break-words leading-relaxed">
+                    <pre
+                      className={`
+                      text-sm font-mono text-gray-600 whitespace-pre-wrap break-words leading-relaxed
+                      ${
+                        paste.content.length > 300
+                          ? "max-h-[300px] sm:max-h-[400px] overflow-y-auto"
+                          : ""
+                      }
+                    `}
+                    >
                       {paste.content}
                     </pre>
-                    <div
-                      className={`
-                      absolute inset-0 bg-gradient-to-b from-transparent to-white
-                      ${paste.content.length > 300 ? "block" : "hidden"}
-                    `}
-                    />
+                    {paste.content.length > 300 && (
+                      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    )}
                   </div>
                 </div>
               )}
@@ -218,8 +255,8 @@ export default function PasteList({
       </AnimatePresence>
 
       {pastes.length === 0 && (
-        <div className="text-center py-20">
-          <p className="text-lg text-gray-400">
+        <div className="text-center py-12 sm:py-20">
+          <p className="text-base sm:text-lg text-gray-400">
             No pastes yet. Create your first paste to get started.
           </p>
         </div>
