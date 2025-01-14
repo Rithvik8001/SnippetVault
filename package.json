@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.1",
+    "@uiw/react-md-editor": "^4.0.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.18.0",
+    "highlight.js": "^11.11.1",
     "lucide-react": "^0.471.1",
     "next": "15.1.4",
     "react": "^19.0.0",
