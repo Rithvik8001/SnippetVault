@@ -166,7 +166,7 @@ export default function AddPaste({ onSave }: AddPasteProps) {
           <CodeEditor
             value={paste.content}
             onChange={handleContentChange}
-            language={paste.language}
+            language={paste.language ?? undefined}
             placeholder={placeholder}
           />
         );
