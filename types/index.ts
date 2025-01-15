@@ -1,15 +1,18 @@
 // types/index.ts
 export type ContentType = "code" | "markdown" | "html" | "note" | "link";
 
+// types/index.ts
+// types/index.ts
 export interface Paste {
   id?: string;
+  user_id?: string;
   title: string;
   content: string;
   tag: string;
-  createdAt?: number;
-  language?: string;
-  contentType: ContentType;
-  url?: string;
+  contentType?: string; // matches content_type in database
+  language?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const CONTENT_TYPES = [
