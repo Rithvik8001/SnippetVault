@@ -11,7 +11,7 @@ export interface Paste {
   tag: string;
   contentType?: string; // matches content_type in database
   language?: string | null;
-  created_at?: string;
+  created_at?: number;
   updated_at?: string;
 }
 

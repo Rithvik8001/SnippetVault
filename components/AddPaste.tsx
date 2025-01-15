@@ -74,7 +74,7 @@ export default function AddPaste({ onSave }: AddPasteProps) {
 
     onSave({
       ...paste,
-      createdAt: Date.now(),
+      created_at: Date.now(),
     });
 
     setPaste({
