@@ -35,30 +35,31 @@ export default function SignIn() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    setLoading(true);
+    setError(null);
 
     try {
-      setLoading(true);
-      setError(null);
-
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) {
-        if (signInError.message.includes("Invalid")) {
-          throw new Error(AUTH_ERRORS.INVALID_CREDENTIALS);
-        }
-        throw signInError;
-      }
+      if (error) throw error;
 
-      router.push("/dashboard");
-      router.refresh();
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : AUTH_ERRORS.DEFAULT;
-      setError({ message: errorMessage });
+      // Wait for session to be established
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Sign in error:", error);
+      setError({
+        message: error instanceof Error ? error.message : AUTH_ERRORS.DEFAULT,
+      });
     } finally {
       setLoading(false);
     }
@@ -69,7 +70,7 @@ export default function SignIn() {
       setGoogleLoading(true);
       setError(null);
 
-      const { error: googleError } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
@@ -80,11 +81,25 @@ export default function SignIn() {
         },
       });
 
-      if (googleError) throw new Error(AUTH_ERRORS.GOOGLE_AUTH_ERROR);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : AUTH_ERRORS.DEFAULT;
-      setError({ message: errorMessage });
+      if (error) throw error;
+
+      // Wait for session after Google OAuth
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Google sign in error:", error);
+      setError({
+        message:
+          error instanceof Error
+            ? error.message
+            : AUTH_ERRORS.GOOGLE_AUTH_ERROR,
+      });
     } finally {
       setGoogleLoading(false);
     }

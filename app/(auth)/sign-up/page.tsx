@@ -51,7 +51,7 @@ export default function SignUp() {
       setLoading(true);
       setError(null);
 
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -59,18 +59,27 @@ export default function SignUp() {
         },
       });
 
-      if (signUpError) {
-        if (signUpError.message.includes("already")) {
-          throw new Error(AUTH_ERRORS.EMAIL_IN_USE);
-        }
-        throw signUpError;
-      }
+      if (error) throw error;
 
-      router.push("/sign-in?message=Check your email to confirm your account");
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : AUTH_ERRORS.DEFAULT;
-      setError({ message: errorMessage });
+      // After successful signup, wait for session
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        router.push("/dashboard");
+        router.refresh();
+      } else {
+        // If no session (email confirmation required)
+        router.push(
+          "/sign-in?message=Check your email to confirm your account"
+        );
+      }
+    } catch (error) {
+      console.error("Sign up error:", error);
+      setError({
+        message: error instanceof Error ? error.message : AUTH_ERRORS.DEFAULT,
+      });
     } finally {
       setLoading(false);
     }
@@ -81,7 +90,7 @@ export default function SignUp() {
       setGoogleLoading(true);
       setError(null);
 
-      const { error: googleError } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
@@ -92,11 +101,25 @@ export default function SignUp() {
         },
       });
 
-      if (googleError) throw new Error(AUTH_ERRORS.GOOGLE_AUTH_ERROR);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : AUTH_ERRORS.DEFAULT;
-      setError({ message: errorMessage });
+      if (error) throw error;
+
+      // Wait for session after Google OAuth
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Google sign up error:", error);
+      setError({
+        message:
+          error instanceof Error
+            ? error.message
+            : AUTH_ERRORS.GOOGLE_AUTH_ERROR,
+      });
     } finally {
       setGoogleLoading(false);
     }

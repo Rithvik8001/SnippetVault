@@ -10,6 +10,9 @@ import { motion } from "framer-motion";
 import AddPaste from "@/components/AddPaste";
 import PasteList from "@/components/PasteList";
 import { Paste } from "@/types";
+import { toast } from "sonner";
+import Pagination from "@/components/Pagination";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +33,8 @@ export default function Dashboard() {
   const router = useRouter();
   const supabase = createClientComponentClient();
   const [mounted, setMounted] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pastesPerPage = 10;
 
   useEffect(() => {
     setMounted(true);
@@ -83,12 +88,22 @@ export default function Dashboard() {
     }
   };
 
+  const filteredPastes = pastes.filter(
+    (paste) =>
+      paste.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      paste.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      paste.tag.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const indexOfLastPaste = currentPage * pastesPerPage;
+  const indexOfFirstPaste = indexOfLastPaste - pastesPerPage;
+  const currentPastes = filteredPastes.slice(
+    indexOfFirstPaste,
+    indexOfLastPaste
+  );
+  const totalPages = Math.ceil(filteredPastes.length / pastesPerPage);
+
   const savePaste = async (paste: Paste) => {
     try {
-      // Log the paste data to verify what we're receiving
-      console.log("Received paste data:", paste);
-
-      // Create a properly structured paste object
       const newPaste = {
         title: paste.title,
         content: paste.content,
@@ -106,26 +121,16 @@ export default function Dashboard() {
         .select()
         .single();
 
-      if (error) {
-        console.error("Supabase error details:", error);
-        throw error;
-      }
+      if (error) throw error;
 
       if (data) {
         setPastes((prev) => [data, ...prev]);
         setIsAdding(false);
+        toast.success("Paste created successfully");
       }
     } catch (error) {
-      // Detailed error logging
-      if (error instanceof Error) {
-        console.error("Error saving paste:", {
-          message: error.message,
-          name: error.name,
-          stack: error.stack,
-        });
-      } else {
-        console.error("Unknown error type:", error);
-      }
+      toast.error("Failed to create paste");
+      console.error("Error:", error);
     }
   };
 
@@ -167,13 +172,6 @@ export default function Dashboard() {
       console.error("Error deleting paste:", error);
     }
   };
-
-  const filteredPastes = pastes.filter(
-    (paste) =>
-      paste.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      paste.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      paste.tag.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   if (loading) {
     return (
@@ -327,10 +325,17 @@ export default function Dashboard() {
             </span>
           </div>
           <PasteList
-            pastes={filteredPastes}
+            pastes={currentPastes}
             onUpdate={updatePaste}
             onDelete={deletePaste}
           />
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </div>
       </main>
     </div>
